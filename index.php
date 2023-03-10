@@ -1,5 +1,13 @@
 <?php
 
+if(!empty($_REQUEST['reset'])) {
+	session_start();
+	session_unset();
+	session_destroy();
+	header('Location: ' . $_SERVER['SCRIPT_URL']);
+	die();
+}
+
 require __DIR__ . '/inc/cfg.php';
 require __DIR__ . '/inc/functions.php';
 
@@ -93,7 +101,6 @@ if(!empty($_REQUEST['q']) && !empty($_SESSION['cht_pwd'])) {
 	];	
 
 	$RESPONSE = call_api($data);
-//echo '<!-- ' . print_r($data, 1) . 	' -->'; //-tmp
 	
 	if(!$response_only)  {
 		if(!empty($RESPONSE['choices'][0]['message']['content'])) $_SESSION['qa'][] = [
@@ -102,7 +109,6 @@ if(!empty($_REQUEST['q']) && !empty($_SESSION['cht_pwd'])) {
 			'metadata' => $RESPONSE
 		];
 
-//{"id":"chatcmpl-6sSJ2H7XJBdcA1K5WZvkgFvtlEPZB","object":"chat.completion","created":1678436540,"model":"gpt-3.5-turbo-0301","usage":{"prompt_tokens":21,"completion_tokens":33,"total_tokens":54},"choices":[{"message":{"role":"assistant","content":"Sacramento is the capital city of the US state of California. It is located in Northern California, in the Central Valley region, along the Sacramento River."},"finish_reason":"stop","index":0}]} //tmp
 	} else {
 		header('Content-Type: text/plain');
 		if(is_array($RESPONSE)) {
@@ -135,18 +141,7 @@ $QA = isset($_SESSION['qa']) ? array_reverse($_SESSION['qa']) : [];
 <script src="assets/visualizer.js"></script>
 <link rel="stylesheet" href="assets/visualizer.css" type="text/css" />
 <style>
-/*html, body {
-  height: 100%;
-  width: 100%;
-  margin: 0;
-  font-size: 100%;
-}
-body {
-  display: flex;
-}
-form {
-  margin: auto;
-}*/ /* //tmp */
+
 #qform {
 	z-index: 100000;
 	position: sticky;
@@ -171,7 +166,9 @@ form {
 		<div style="display:none" id="settings_div"><fieldset><div class="row"></div></fieldset>
 		<button type="button" class="tertiary save_settings_button">Save Default Settings</button>
 		<span class="saving_settings_span" style="display:none;color:blue"><small><i>saving &hellip;</i></small></span>
+		<a href="./?reset=1">Reset All</a>
 		</div>
+		
 	</div>
 </form>
 
