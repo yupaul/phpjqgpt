@@ -16,15 +16,18 @@ $RESPONSE = '';
 $sliders = [
 	'top_p' => [
 		'range' => '0,1',
-		'step'=> '0.01',		
+		'step'=> '0.001',
+		'precision' => 3,
 	],
 	'temperature' => [
 		'range' => '0,2',
-		'step'=> '0.01',		
+		'step'=> '0.001',		
+		'precision' => 3,
 	],
 	'max_tokens' => [
 		'range' => '1,2048',
 		'step' => '1',
+		'precision' => 0,
 	],	
 ];
 
@@ -124,9 +127,9 @@ $QA = isset($_SESSION['qa']) ? array_reverse($_SESSION['qa']) : [];
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Chat</title>
-<script src="//code.jquery.com/jquery-1.12.4.min.js" crossorigin="anonymous"></script>
+<script src="//code.jquery.com/jquery-3.6.3.min.js" crossorigin="anonymous"></script>
 <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/mini.css/3.0.1/mini-default.min.css" media="screen" />
-<script src="assets/simple-slider.min.js"></script>
+<!-- <script src="assets/simple-slider.min.js"></script> -->
 <link rel="stylesheet" href="assets/simple-slider.css" type="text/css" />
 <script src="//cdnjs.cloudflare.com/ajax/libs/json2html/2.2.1/json2html.min.js"></script>
 <script src="assets/visualizer.js"></script>
@@ -262,36 +265,29 @@ $(document).ready(function() {
 		if(_param.indexOf('_') === 0) continue;
 		let _h = `<div class="col-sm-12 col-md-6">
 		<label for="${ _param }">${ ucwords(_param) }</label>
-		<input type="text" name="${ _param }" placeholder="${ ucwords(_param) }" /><span id="${ _param }_show"></span></div>`;
-/*${
-			sliders.hasOwnProperty(_param) ? 'data-slider="true" data-slider-range="'+sliders[_param].range+'" data-slider-step="'+sliders[_param].step+'"' : '' }		*/ //tmp
+		<input type="text" name="${ _param }" placeholder="${ ucwords(_param) }" ${
+			sliders.hasOwnProperty(_param) ? 'data-slider="true" data-slider-range="'+sliders[_param].range+'" data-precision="'+sliders[_param].precision+'" data-slider-step="'+sliders[_param].step+'"' : '' } /></div>`;
 		$('#settings_div .row').append(_h);
 		$('[name="'+_param+'"]').val(params[_param]);	
-		if(sliders.hasOwnProperty(_param)) {
-			$('[name="'+_param+'"]').simpleSlider({
-				range: sliders[_param].range,
-				step: sliders[_param].step,
-			});
-			
-			$(document).on("slider:changed", '[name="'+_param+'"]', function (event, data) { 
-console.log('!!!!!!', data.value); //tmp			
-				$('#'+_param+'_show').html(data.value);
-			});
-		}
 	}	
 	
-  /* $("[data-slider]")
-    .each(function () {
-      var input = $(this);
-      $("<span>")
-        .addClass("output")
-        .insertAfter($(this));
-    }).bind("slider:ready slider:changed", function (event, data) {
-      $(this)
-        .nextAll(".output:first")
-          .html(data.value.toFixed(3));
-    });	*/ //tmp
+	var slscript = window.document.createElement('script');
+	slscript.src = 'assets/simple-slider.min.js';
 	
+	slscript.onload = () => {
+		$("[data-slider]")
+		.each(function () {
+		var input = $(this);
+		$("<span>")
+			.addClass("output")
+			.insertAfter($(this));
+		}).bind("slider:ready slider:changed", function (event, data) {
+		$(this)
+        .nextAll(".output:first")
+          .html(data.value.toFixed(parseInt($(this).attr('data-precision'))));
+		});
+	}
+	window.document.getElementsByTagName('head')[0].appendChild(slscript);
 });
 </script>
 </body>
