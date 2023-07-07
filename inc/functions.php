@@ -1,6 +1,6 @@
 <?php
 
-function call_api(array &$data) {
+function call_api(array &$data, string $api_key) {
   $curl = curl_init();
 
   curl_setopt_array($curl, array(
@@ -14,7 +14,7 @@ function call_api(array &$data) {
     CURLOPT_CUSTOMREQUEST => 'POST',
     CURLOPT_POSTFIELDS => json_encode($data),
     CURLOPT_HTTPHEADER => array(
-      'Authorization: Bearer ' . CHT_API_KEY,
+      'Authorization: Bearer ' . $api_key,
       'Content-Type: application/json'
     ),
   ));

@@ -113,4 +113,4 @@ if($text){
   // write out the response from the AI
   echo $content;
 }
-?>
+

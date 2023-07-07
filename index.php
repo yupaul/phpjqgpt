@@ -17,7 +17,7 @@ error_reporting(CHT_DEBUG ? E_ALL : 0);
 
 
 session_start();
-if(!empty($_REQUEST['pwd']) && md5($_REQUEST['pwd']) === CHT_PWD) $_SESSION['cht_pwd'] = $_REQUEST['pwd'];
+if(!empty($_REQUEST['pwd'])) $_SESSION['cht_pwd'] = $_REQUEST['pwd'];
 
 $RESPONSE = '';
 
@@ -100,15 +100,18 @@ if(!empty($_REQUEST['q']) && !empty($_SESSION['cht_pwd'])) {
 		'content' => trim($_REQUEST['q']),
 	];	
 
-	$RESPONSE = call_api($data);
+	$RESPONSE = call_api($data, $_SESSION['cht_pwd']);
 	
 	if(!$response_only)  {
-		if(!empty($RESPONSE['choices'][0]['message']['content'])) $_SESSION['qa'][] = [
-			'q' => trim($_REQUEST['q']),
-			'a' => $RESPONSE['choices'][0]['message']['content'], 
-			'metadata' => $RESPONSE
-		];
-
+		if(!empty($RESPONSE['choices'][0]['message']['content'])) {
+			$_SESSION['qa'][] = [
+				'q' => trim($_REQUEST['q']),
+				'a' => $RESPONSE['choices'][0]['message']['content'], 
+				'metadata' => $RESPONSE
+			];
+		} else {
+			echo htmlspecialchars(json_encode($RESPONSE), ENT_QUOTES, 'UTF-8');
+		}
 	} else {
 		header('Content-Type: text/plain');
 		if(is_array($RESPONSE)) {
@@ -202,7 +205,7 @@ $(document).ready(function() {
 		localStorage.setItem('cht_pwd', '<?php echo $_SESSION['cht_pwd']; ?>')
 		$('#qform').prepend('<input type="hidden" name="pwd" value="'+_pwd+'" />');
 <?php } else { ?>
-		$('#qform').prepend('<input type="password" name="pwd" size="8" placeholder="password" />');
+		$('#qform').prepend('<input type="password" name="pwd" size="100" placeholder="password" />');
 <?php } ?>
 	}
 	
